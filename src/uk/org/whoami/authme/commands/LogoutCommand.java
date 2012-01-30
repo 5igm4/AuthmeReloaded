@@ -16,6 +16,7 @@
 
 package uk.org.whoami.authme.commands;
 
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -75,6 +76,7 @@ public class LogoutCommand implements CommandExecutor {
         LimboCache.getInstance().addLimboPlayer(player);
         player.getInventory().setArmorContents(new ItemStack[0]);
         player.getInventory().setContents(new ItemStack[36]);
+        player.setGameMode(GameMode.SURVIVAL);
         if (settings.isTeleportToSpawnEnabled()) {
             player.teleport(player.getWorld().getSpawnLocation());
         }

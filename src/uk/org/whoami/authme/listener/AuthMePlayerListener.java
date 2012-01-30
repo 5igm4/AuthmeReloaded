@@ -22,6 +22,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -37,6 +38,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -62,7 +64,7 @@ public class AuthMePlayerListener implements Listener {
         this.data = data;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -100,7 +102,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerChat(PlayerChatEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -131,7 +133,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -177,8 +179,8 @@ public class AuthMePlayerListener implements Listener {
         }
         return;
     }
-
-	@EventHandler
+    
+	@EventHandler(priority = EventPriority.LOW)
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (!event.getResult().equals(Result.ALLOWED) || event.getPlayer() == null) {
             return;
@@ -204,18 +206,18 @@ public class AuthMePlayerListener implements Listener {
             return;
         }
 
-        /*if(player.isOnline() && settings.isForceSingleSessionEnabled()) {
+        if(player.isOnline() && settings.isForceSingleSessionEnabled()) {
         	event.disallow(Result.KICK_OTHER, m._("same_nick"));
         	return;
         	
-        }*/
+        }
         //Remove doubles from premises
-        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+        /*for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             if (onlinePlayer.getName().equals(player.getName()) && settings.isForceSingleSessionEnabled()) {
                 event.disallow(Result.KICK_OTHER, m._("same_nick"));
                 return;
             }
-        }
+        }*/
 
         if (settings.isKickNonRegisteredEnabled()) {
             if (!data.isAuthAvailable(name)) {
@@ -225,7 +227,7 @@ public class AuthMePlayerListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (event.getPlayer() == null) {
             return;
@@ -281,7 +283,7 @@ public class AuthMePlayerListener implements Listener {
         sched.scheduleSyncDelayedTask(plugin, new MessageTask(plugin, name, msg, msgInterval));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (event.getPlayer() == null) {
             return;
@@ -305,7 +307,7 @@ public class AuthMePlayerListener implements Listener {
         PlayerCache.getInstance().removePlayer(name);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerKick(PlayerKickEvent event) {
         if (event.getPlayer() == null) {
             return;
@@ -327,9 +329,14 @@ public class AuthMePlayerListener implements Listener {
             LimboCache.getInstance().deleteLimboPlayer(name);
         }
         PlayerCache.getInstance().removePlayer(name);
-    }
+        if (settings.isForceSingleSessionEnabled()) {
+        	Plugin wg = plugin.getServer().getPluginManager().getPlugin("WorldGaurd");
+        		if (wg != null && event.getReason().equals("Logged in from another location"))
+        			event.setCancelled(true);
+        }
+    }	
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -355,7 +362,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -381,7 +388,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -406,7 +413,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
@@ -430,7 +437,7 @@ public class AuthMePlayerListener implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerBedEnter(PlayerBedEnterEvent event) {
         if (event.isCancelled() || event.getPlayer() == null) {
             return;
